@@ -53,38 +53,30 @@ class WenshuSpider(scrapy.Spider):  # RedisSpider
         url = 'http://wenshu.court.gov.cn/List/ListContent'
         year = 2018
         mold_index = 0
-        while True:
-            if self.mold[mold_index] != '':
-                for local in self.local:
-                    for index in range(1, 21):
-                        data = {
-                            'Param': '案件类型:民事案件,裁判年份:{},关键词:{},基层法院:{}'.format(year, self.mold[mold_index], local),
-                            'Index': str(index),
-                            'Page': '10',
-                            'Order': '法院层级',
-                            'Direction': 'asc',
-                            'vl5x': vl5x,
-                            'number': number,
-                            'guid': self.guid
-                        }
-                        headers = {
-                            'Cookie': 'vjkl5=' + response.meta['vjkl5'],  # 在这单独添加cookie,settings中就可以禁用cookie,防止跟踪被ban
-                            'Host': 'wenshu.court.gov.cn',
-                            'Origin': 'http://wenshu.court.gov.cn',
-                        }
-                        yield scrapy.FormRequest(url,
-                                                 formdata=data,
-                                                 headers=headers,
-                                                 meta={'from_data': data,
-                                                       'headers': headers,
-                                                       'vjkl5': response.meta['vjkl5']},
-                                                 callback=self.get_docid, dont_filter=True)
-                mold_index += 1
-            else:
-                year -= 1
-                mold_index = 0
-                if year == 1984:
-                    break
+        for index in range(1, 21):
+            data = {
+                'Param': '案件类型:民事案件,裁判年份:{},关键词:{},基层法院:{}'.format(year, self.mold[mold_index], local),
+                'Index': str(index),
+                'Page': '10',
+                'Order': '法院层级',
+                'Direction': 'asc',
+                'vl5x': vl5x,
+                'number': number,
+                'guid': self.guid
+            }
+            headers = {
+                'Cookie': 'vjkl5=' + response.meta['vjkl5'],  # 在这单独添加cookie,settings中就可以禁用cookie,防止跟踪被ban
+                'Host': 'wenshu.court.gov.cn',
+                'Origin': 'http://wenshu.court.gov.cn',
+            }
+            yield scrapy.FormRequest(url,
+                                     formdata=data,
+                                     headers=headers,
+                                     meta={'from_data': data,
+                                           'headers': headers,
+                                           'vjkl5': response.meta['vjkl5']},
+                                     callback=self.get_docid, dont_filter=True)
+            
 
     def get_docid(self, response):
         item = WenshuSpiderItem()
